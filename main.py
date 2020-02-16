@@ -31,7 +31,7 @@ def send_email(content, subreddit):
     message = Mail(
         from_email='me@redditfomo.xyz',
         to_emails=os.environ.get('REDDIT_FOMO_SENDGRID_RECIPIENT'),
-        subject='Reddit Fomo: best weekly posts for: ' + subreddit + " on: " + datetime.datetime.now(),
+        subject='Reddit Fomo: best weekly posts for: ' + subreddit + " on: " + str(datetime.datetime.now()),
         html_content=content)
     try:
         
