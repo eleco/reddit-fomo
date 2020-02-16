@@ -9,7 +9,6 @@ A Python script to receive each day a selection of the best submissions per user
 2. Deploy on Heroku or similar and schedule daily to receive each day the best weekly subscriptions for 1/7th of the user subreddits.
 
 
-
 # Configuration
 
 * REDDIT_FOMO_CLIENT_ID: client id from the reddit app

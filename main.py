@@ -20,6 +20,13 @@ template = Template('''
    {% endfor %}''')
 
 
+reddit = praw.Reddit(client_id=os.environ.get('REDDIT_FOMO_CLIENT_ID'),
+                     client_secret=os.environ.get('REDDIT_FOMO_CLIENT_SECRET'),
+                     user_agent=os.environ.get('REDDIT_FOMO_USER_AGENT'),
+                     password=os.environ.get('REDDIT_FOMO_PASSWORD'),
+                     username=os.environ.get('REDDIT_FOMO_USERNAME'))
+
+
 def send_email(content, subreddit):
     message = Mail(
         from_email='me@redditfomo.xyz',
@@ -27,6 +34,7 @@ def send_email(content, subreddit):
         subject='Reddit Fomo: best weekly posts for: ' + subreddit,
         html_content=content)
     try:
+        
         sg = SendGridAPIClient(os.environ.get('REDDIT_FOMO_SENDGRID_API_KEY'))
         response = sg.send(message)
         logging.debug(response.status_code)
@@ -35,23 +43,31 @@ def send_email(content, subreddit):
     except Exception as e:
         logger.exception(e)
 
-reddit = praw.Reddit(client_id=os.environ.get('REDDIT_FOMO_CLIENT_ID'),
-                     client_secret=os.environ.get('REDDIT_FOMO_CLIENT_SECRET'),
-                     user_agent=os.environ.get('REDDIT_FOMO_USER_AGENT'),
-                     password=os.environ.get('REDDIT_FOMO_PASSWORD'),
-                     username=os.environ.get('REDDIT_FOMO_USERNAME'))
+
+def get_subscriptions():
+    try:
+        logging.info("fetching subscriptions")
+        return list(reddit.user.subreddits(limit=None))
+    except Exception as e:
+        logger.exception(e)
 
 
-subscribeds = list(reddit.user.subreddits(limit=None))
+def get_bestof(subreddit):
+    try:
+        logging.info("fetching reddit best of for subreddit:" + subreddit)
+        ret= reddit.subreddit(subreddit).top(time_filter='week',limit=20)
+        print("ret :" + str(ret))
+        return ret
+    except Exception as e:
+        logger.exception(e)
+
+subscribeds = get_subscriptions()
 counter = 0
-for subreddit_sub in subscribeds:
+for subreddit_sub in get_subscriptions():
     #email 1/7 of the top 20  best weekly submissions from the user subreddits
     #so the whole of the subreddits are covered over one week
     if counter % 7 == datetime.datetime.today().weekday():
-        print('emailing bestof for subreddit:'+ subreddit_sub.display_name)
-        submissions = reddit.subreddit(subreddit_sub.display_name).top(time_filter='week',limit=20)
-        send_email(template.render(results=submissions), subreddit_sub.display_name)
+        logging.info('emailing bestof for subreddit:'+ subreddit_sub.display_name)
+        send_email(template.render(results=get_bestof(subreddit_sub.display_name)), subreddit_sub.display_name)
       
     counter = counter + 1
-
-
