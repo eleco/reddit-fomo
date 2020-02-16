@@ -2,8 +2,11 @@ import praw
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-import pprint
+import logging
 import datetime
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 from jinja2 import Template, Environment, PackageLoader, select_autoescape
 template = Template('''
@@ -26,11 +29,11 @@ def send_email(content, subreddit):
     try:
         sg = SendGridAPIClient(os.environ.get('REDDIT_FOMO_SENDGRID_API_KEY'))
         response = sg.send(message)
-        print(response.status_code)
-        print(response.body)
-        print(response.headers)
+        logging.debug(response.status_code)
+        logging.debug(response.body)
+        logging.debug(response.headers)
     except Exception as e:
-        print(e.message)
+        logger.exception(e)
 
 reddit = praw.Reddit(client_id=os.environ.get('REDDIT_FOMO_CLIENT_ID'),
                      client_secret=os.environ.get('REDDIT_FOMO_CLIENT_SECRET'),
