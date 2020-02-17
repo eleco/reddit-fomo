@@ -1,7 +1,8 @@
 # Reddit-Fomo
 
-A Python script to receive each day a selection of the best submissions per user-subscribed subreddits
-
+Reddit can be addictive and time-consuming. This self-hosted script cuts on the noise and delivers the best of the user-subscribed subreddits.
+Each day over 7 days the scripts emails 1/7th of the weekly best submissions per subreddits the user subscribes to.
+ 
 
 # Installation
 
