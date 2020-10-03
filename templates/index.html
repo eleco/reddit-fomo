@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    {% include 'header.html' %}
+
+</head>
+
+<form action="" method="post" name="reddit">
+    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+    {% for course_form in form.courses %}
+
+    <p>{{ course_form.subreddit }} {{ course_form.frequence }}</p>
+
+    {% endfor %}
+    <p>{{ form.submit() }}</p>
+</form>

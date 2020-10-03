@@ -1,9 +1,8 @@
 import praw
 import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 import logging
 import datetime
+import requests
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -28,18 +27,22 @@ reddit = praw.Reddit(client_id=os.environ.get('REDDIT_FOMO_CLIENT_ID'),
 
 
 def send_email(content, subreddit):
-    message = Mail(
-        from_email='me@redditfomo.xyz',
-        to_emails=os.environ.get('REDDIT_FOMO_SENDGRID_RECIPIENT'),
-        subject='RedditFomo: weekly best for: ' + subreddit + " on: " + str(datetime.datetime.now()),
-        html_content=content)
+   
     try:
-        
-        sg = SendGridAPIClient(os.environ.get('REDDIT_FOMO_SENDGRID_API_KEY'))
-        response = sg.send(message)
-        logging.debug(response.status_code)
-        logging.debug(response.body)
-        logging.debug(response.headers)
+        key = os.environ.get('MAILGUN_KEY')
+        sandbox = os.environ.get('MAILGUN_SANDBOX')
+        recipient = os.environ.get('MAILGUN_RECIPIENT')
+
+        request_url = 'https://api.mailgun.net/v2/{0}/messages'.format(sandbox)
+        request = requests.post(request_url, auth=('api', key), data={
+            'from': 'me@redditfomo.xyz',
+            'to': recipient,
+            'subject': 'RedditFomo: weekly best for: ' + subreddit + " on: " + str(datetime.datetime.now()),
+            'html': content
+        })
+
+        print ('Status: {0}'.format(request.status_code))
+        print ('Body:   {0}'.format(request.text))
     except Exception as e:
         logger.exception(e)
 
